@@ -9,11 +9,11 @@ public class Light {
     double originY;
     Color lightColor;
 
-    Light (int rayCount, int originX, int originY, boolean stationary, Color lightColor) {
+    Light (int rayCount, int originX, int originY, boolean stationary, Color lightColor, int strength) {
         rays = new Ray[rayCount];
 
         for (int a = 0; a < rayCount; a++) {
-            Ray r = new Ray(originX, originY, (360.0/rayCount)*a, 300);
+            Ray r = new Ray(originX, originY, (360.0/rayCount)*a, strength);
             rays[a] = r;
             r.getRay().setOpacity(0.1);
             //Controller.p.getChildren().add(r.getRay());

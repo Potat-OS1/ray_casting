@@ -4,10 +4,13 @@ import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.geometry.Point2D;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.shape.Shape;
 import javafx.stage.Stage;
 
 import java.util.ArrayList;
@@ -17,20 +20,25 @@ public class Controller extends Application {
     public static ArrayList<Obstactle> obstacles = new ArrayList<>();
     public static double mousex;
     public static double mousey;
-    public static Rectangle shadows = new Rectangle(600, 600);
+    public static Shape shadows = new Rectangle(600, 600);
     public static Pane top = new Pane(shadows);
-    public static Pane p = new Pane(top);
+    public static Pane p = new Pane();
 
 
     @Override
     public void start(Stage stage) {
-        Scene scene = new Scene(p, 1000, 1000);
+        ImageView iv = new ImageView(new Image(Controller.class.getResourceAsStream("/image.jpg")));
+        //p.getChildren().add(iv);
+        p.getChildren().addAll(iv, top);
+
+
+        Scene scene = new Scene(p, 800, 800);
         stage.setTitle("Hello!");
         stage.setScene(scene);
         stage.show();
         //1154 / 256
-        Light one = new Light(1154, 200, 200, false, Color.BLUE);
-        Light two = new Light(256, 275, 275, true, Color.ORANGERED);
+        Light one = new Light(1154, 200, 200, false, Color.rgb(0, 0, 255, 1), 100);
+        Light two = new Light(512, 275, 275, true, Color.rgb(0, 255, 0, 1), 300);
         Lights.add(one);
         Lights.add(two);
         obstactles(p);

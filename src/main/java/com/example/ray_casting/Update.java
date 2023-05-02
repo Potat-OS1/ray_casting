@@ -2,8 +2,13 @@ package com.example.ray_casting;
 
 import javafx.animation.AnimationTimer;
 import javafx.geometry.Point2D;
+import javafx.scene.Node;
+import javafx.scene.effect.BlendMode;
 import javafx.scene.effect.Bloom;
 import javafx.scene.effect.BoxBlur;
+import javafx.scene.effect.Effect;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.*;
 import javafx.scene.shape.*;
@@ -27,9 +32,12 @@ public class Update extends AnimationTimer {
         bb = new BoxBlur();
         bb.setIterations(5);
         bb2 = new BoxBlur();
-        bb2.setHeight(100);
-        bb2.setWidth(100);
-        bb2.setIterations(12);
+        bb2.setHeight(300);
+        bb2.setWidth(300);
+        bb2.setIterations(10);
+
+
+        //Controller.top.setBackground(new Background(new BackgroundFill(Color.BLACK, null, null)));
     }
 
     @Override
@@ -50,47 +58,48 @@ public class Update extends AnimationTimer {
         Controller.shadows.setLayoutX(-200);
         Controller.shadows.setLayoutY(-200);
 
-//        Shape lightFade = null;
         Pane lights = new Pane();
+        lights.setMinSize(1000,1000);
+        lights.getChildren().add(Controller.shadows);
         Shape cutout = Controller.shadows;
+        Shape commonCutout = new Circle(0);
+        ArrayList<Shape> listOfLights = new ArrayList<>();
         for (Light l : Controller.Lights) {
             Obstactle obs = new Obstactle(lightPointList.get(Controller.Lights.indexOf(l)).toArray(new Point2D[0]), Color.BLUEVIOLET);
             obs.getObs().setOpacity(.3);
 
-            Circle c = new Circle(l.getRays()[0].strength + 100);
-            c.setFill(l.getLightColor());
-            c.setOpacity(.5);
-            c.setEffect(bb2);
-            lights.getChildren().add(c);
-            c.setLayoutX(l.originX);
-            c.setLayoutY(l.originY);
+            Shape s = obs.getObs();
+            s.setFill(l.getLightColor());
+            listOfLights.add(s);
 
-//            if (lightFade == null) {
-//                lightFade = Shape.union(c, c);
-//            }
-//            else {
-//                lightFade = Shape.union(lightFade, c);
-//            }
+            Circle c = new Circle(l.getRays()[0].strength / 1.5);
+            c.setLayoutX(l.getX());
+            c.setLayoutY(l.getY());
+
+            commonCutout = Shape.union(commonCutout, c);
+
+            Controller.shadows = Shape.subtract(Controller.shadows, c);
             cutout = Shape.subtract(cutout, obs.getObs());
-
         }
-        cutout.setEffect(bb2);
-//        lightFade.setFill(Color.BLUEVIOLET);
 
-        //lightFade.setEffect(bb2);
-//        gradient1 = new RadialGradient(0,
-//                0,
-//                0,
-//                0,
-//                150,
-//                false,
-//                CycleMethod.NO_CYCLE,
-//                new Stop(.9, Color.BLUEVIOLET),
-//                new Stop(1, Color.BLUE));
-        //lightFade.setFill(Color.GREEN);
-        //lightFade.setEffect(bb2);
+        for (Shape s : listOfLights) {
+            Color temp = (Color) s.getFill();
+            s = Shape.subtract(s, commonCutout);
+            s.setBlendMode(BlendMode.ADD);
+            s.setFill(temp);
+            Bloom bloom = new Bloom();
+            bloom.setThreshold(.1);
+            bb2.setInput(bloom);
+            s.setEffect(bb2);
+            lights.getChildren().add(s);
+        }
 
-        Controller.top.getChildren().addAll(lights, cutout);
+
+
+        //Controller.shadows = Shape.subtract(Controller.shadows, cutout);
+        Controller.shadows.setEffect(bb2);
+        lights.getChildren().remove(0);
+        Controller.top.getChildren().addAll(Controller.shadows, lights);
     }
 
     private void updateLights () {
