@@ -1,5 +1,6 @@
 package com.example.ray_casting;
 
+import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
 
 public class Ray {
@@ -7,11 +8,13 @@ public class Ray {
     double theta;
     double strength;
 
-    Ray (int x, int y, double theta, int strength) {
+    Ray (double x, double y, double theta, int strength) {
         this.theta = theta;
         this.strength = strength;
         thisRay = new Line(x, y, x+(strength * Math.cos(Math.toRadians(theta))), y+(strength * Math.sin(Math.toRadians(theta))));
         thisRay.setStrokeWidth(3);
+        thisRay.setOpacity(.5);
+        thisRay.setFill(Color.WHITE);
     }
 
     public Line getRay() {
@@ -28,11 +31,5 @@ public class Ray {
     public void updateRayEndPoints (double x2, double y2) {
         thisRay.setEndX(x2);
         thisRay.setEndY(y2);
-    }
-
-    public void updateStrength (double updatedStrength) {
-        strength = updatedStrength;
-        thisRay.setEndX(thisRay.getEndX() + (strength * Math.cos(Math.toRadians(theta))));
-        thisRay.setEndY(thisRay.getEndY() + (strength * Math.sin(Math.toRadians(theta))));
     }
 }

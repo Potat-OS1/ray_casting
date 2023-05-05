@@ -2,28 +2,33 @@ package com.example.ray_casting;
 
 import javafx.scene.paint.Color;
 
-public class Light {
-    Ray[] rays;
+public class LightSource {
     boolean stationary;
     double originX;
     double originY;
     Color lightColor;
+    final int strength;
+    Ray[] rays;
+    RadialLight iris;
 
-    Light (int rayCount, int originX, int originY, boolean stationary, Color lightColor, int strength) {
+    LightSource (int rayCount, double originX, double originY, Color c, boolean stationary, int strength) {
+        this.strength = strength;
+        this.lightColor = c;
+        this.stationary = stationary;
         rays = new Ray[rayCount];
 
-        for (int a = 0; a < rayCount; a++) {
-            Ray r = new Ray(originX, originY, (360.0/rayCount)*a, strength);
-            rays[a] = r;
-            r.getRay().setOpacity(0.1);
-            //Controller.p.getChildren().add(r.getRay());
-        }
-
-        this.lightColor = lightColor;
-        this.stationary = stationary;
         if (stationary) {
             this.originX = originX;
             this.originY = originY;
+        }
+    }
+
+    public RadialLight getIris () {
+        if (iris != null) {
+            return iris;
+        }
+        else {
+            return null;
         }
     }
 
@@ -51,4 +56,7 @@ public class Light {
         return lightColor;
     }
 
+    public int getStrength () {
+        return strength;
+    }
 }

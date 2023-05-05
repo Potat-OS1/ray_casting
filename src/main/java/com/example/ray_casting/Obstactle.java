@@ -5,12 +5,13 @@ import javafx.geometry.Point2D;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Polygon;
+import javafx.scene.shape.Shape;
 
 import java.util.ArrayList;
 
 public class Obstactle {
-    private ArrayList<Line> detectionLines = new ArrayList<>();
-    private Polygon obs;
+    private final ArrayList<Line> detectionLines = new ArrayList<>();
+    private final Shape obs;
     Obstactle (Point2D[] points, Color c) {
         int a = 0;
         while(true) {
@@ -23,16 +24,10 @@ public class Obstactle {
                 break;
             }
         }
-        obs = new Polygon();
-        obs.setFill(c);
-        ObservableList<Double> list = obs.getPoints();
-        for (int b = 0; b < points.length; b++) {
-            list.add(points[b].getX());
-            list.add(points[b].getY());
-        }
+        obs = PointsToPolygon.arrayToPolygon(points, c);
     }
 
-    public Polygon getObs () {
+    public Shape getObs () {
         return obs;
     }
 
