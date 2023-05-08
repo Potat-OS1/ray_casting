@@ -1,18 +1,16 @@
 package com.example.ray_casting;
 
-import javafx.collections.ObservableList;
 import javafx.geometry.Point2D;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
-import javafx.scene.shape.Polygon;
 import javafx.scene.shape.Shape;
 
 import java.util.ArrayList;
 
-public class Obstactle {
+public class Obstacle {
     private final ArrayList<Line> detectionLines = new ArrayList<>();
     private final Shape obs;
-    Obstactle (Point2D[] points, Color c) {
+    Obstacle(Point2D[] points, Color c) {
         int a = 0;
         while(true) {
             try {
@@ -24,7 +22,7 @@ public class Obstactle {
                 break;
             }
         }
-        obs = PointsToPolygon.arrayToPolygon(points, c);
+        obs = Tools.arrayToPolygon(points, c);
     }
 
     public Shape getObs () {

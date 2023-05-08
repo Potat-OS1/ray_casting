@@ -18,7 +18,7 @@ import java.util.Objects;
 
 public class Controller extends Application {
     public static ArrayList<LightSource> Lights = new ArrayList<>();
-    public static ArrayList<Obstactle> obstacles = new ArrayList<>();
+    public static ArrayList<Obstacle> obstacles = new ArrayList<>();
     public static double mousex;
     public static double mousey;
     public static Shape shadows = new Rectangle(600, 600);
@@ -41,19 +41,23 @@ public class Controller extends Application {
         stage.setScene(scene);
         stage.show();
         //1154 / 256
-        //RadialLight one = new RadialLight(1154, 200, 200, false, Color.rgb(0, 0, 255, 1), 200, true);
+        RadialLight one = new RadialLight(1024, 200, 200, false, Color.rgb(0, 0, 255, 1), 200, true);
+        Lights.add(one);
+
         //RadialLight two = new RadialLight(512, 275, 275, true, Color.rgb(0, 255, 0, 1), 100, true);
-        //RadialLight three = new RadialLight(512, 275, 500, true, Color.TRANSPARENT, 100, true);
-        //Lights.add(one);
         //Lights.add(two);
+
+        //RadialLight three = new RadialLight(512, 275, 500, true, Color.TRANSPARENT, 100, true);
         //Lights.add(three);
-        BeamLight bl1 = new BeamLight(10, 275, 275, Color.BLUE, true, 200, 30, 100);
-        Lights.add(bl1);
+
+//        BeamLight bl1 = new BeamLight(10, 275, 270, Color.BLUE, true, 450, 110, 100);
+//        Lights.add(bl1);
+
         obstactles(p);
         mouseTracking(scene);
 
         AnimationTimer timer = new Update();
-        //timer.start();
+        timer.start();
     }
 
     private void obstactles (Pane p) {
@@ -64,8 +68,9 @@ public class Controller extends Application {
                 new Point2D(200,100),
                 new Point2D(100,100),
         };
-        Obstactle obs1 = new Obstactle(points1, Color.RED);
+        Obstacle obs1 = new Obstacle(points1, Color.RED);
         obstacles.add(obs1);
+        obs1.getObs().setOpacity(.5);
         p.getChildren().add(obs1.getObs());
 
         Point2D[] points2 = {
@@ -75,8 +80,9 @@ public class Controller extends Application {
                 new Point2D(400,300),
                 new Point2D(300,300),
         };
-        Obstactle obs2 = new Obstactle(points2, Color.RED);
+        Obstacle obs2 = new Obstacle(points2, Color.RED);
         obstacles.add(obs2);
+        obs2.getObs().setOpacity(.5);
         p.getChildren().add(obs2.getObs());
 
         Point2D[] points3 = {
@@ -85,8 +91,9 @@ public class Controller extends Application {
                 new Point2D(550, 0),
                 new Point2D(550, 800),
         };
-        Obstactle obs3 = new Obstactle(points3, Color.RED);
+        Obstacle obs3 = new Obstacle(points3, Color.RED);
         obstacles.add(obs3);
+        obs3.getObs().setOpacity(.5);
         p.getChildren().add(obs3.getObs());
     }
 

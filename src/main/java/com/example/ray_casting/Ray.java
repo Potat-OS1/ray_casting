@@ -21,6 +21,15 @@ public class Ray {
         return thisRay;
     }
 
+    public void setTheta (double theta) {
+        this.theta = theta;
+    }
+
+    public void updateRayDirection (double theta) {
+        thisRay.setEndX(thisRay.getStartX() + (strength * Math.cos(Math.toRadians(theta))));
+        thisRay.setEndY(thisRay.getStartY() + (strength * Math.sin(Math.toRadians(theta))));
+    }
+
     public void updateRayOrigin (double x1, double y1) {
         thisRay.setStartX(x1);
         thisRay.setStartY(y1);

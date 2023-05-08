@@ -7,14 +7,16 @@ public class RadialLight extends LightSource{
     RadialLight(int rayCount, int originX, int originY, boolean stationary, Color lightColor, int strength, boolean isOriginal) {
         super(rayCount, originX, originY, lightColor, stationary, strength);
 
+
         for (int a = 0; a < rayCount; a++) {
-            Ray r = new Ray(originX, originY, (360.0/rayCount)*a, strength);
-            rays[a] = r;
-            r.getRay().setOpacity(0.1);
+            rays.add(new Ray(originX, originY, (360.0/rayCount)*a, strength));
         }
+//        for (Ray ray : rays) {
+//            Controller.p.getChildren().add(ray.getRay());
+//        }
 
         if (isOriginal) {
-            iris = new RadialLight(128, originX, originY, stationary, Color.WHITE, (int) (strength/1.5), false);
+            iris = new RadialLight(rayCount, originX, originY, stationary, Color.WHITE, (int) (strength/2.5), false);
         }
     }
 }

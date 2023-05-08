@@ -2,20 +2,23 @@ package com.example.ray_casting;
 
 import javafx.scene.paint.Color;
 
+import java.util.ArrayList;
+
 public class LightSource {
     boolean stationary;
     double originX;
     double originY;
     Color lightColor;
     final int strength;
-    Ray[] rays;
+    ArrayList<Ray> rays = new ArrayList<>();
     RadialLight iris;
+    int rayCount;
 
     LightSource (int rayCount, double originX, double originY, Color c, boolean stationary, int strength) {
         this.strength = strength;
         this.lightColor = c;
         this.stationary = stationary;
-        rays = new Ray[rayCount];
+        this.rayCount = rayCount;
 
         if (stationary) {
             this.originX = originX;
@@ -32,7 +35,7 @@ public class LightSource {
         }
     }
 
-    public Ray[] getRays () {
+    public ArrayList<Ray> getRays () {
         return rays;
     }
 
