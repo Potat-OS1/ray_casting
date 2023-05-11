@@ -87,4 +87,9 @@ public class BeamLight extends LightSource{
 //            rays.add(new Ray((-x), (-y), theta, strength));
         }
     }
+
+    @Override
+    void lightDropOffImage() {
+
+    }
 }

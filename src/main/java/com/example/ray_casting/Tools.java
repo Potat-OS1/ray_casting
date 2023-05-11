@@ -2,6 +2,9 @@ package com.example.ray_casting;
 
 import javafx.collections.ObservableList;
 import javafx.geometry.Point2D;
+import javafx.scene.image.Image;
+import javafx.scene.image.PixelWriter;
+import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Polygon;
@@ -189,6 +192,7 @@ public class Tools {
         return shortestIntersection;
     }
 
+    //slightly less tempermental code that gpt made. what i wrote was like 95% this, but this was slightly less finnicky.
     private static Point2D getIntersection(Line line1, Line line2) {
         double x1 = line1.getStartX();
         double y1 = line1.getStartY();
@@ -200,13 +204,15 @@ public class Tools {
         double y4 = line2.getEndY();
 
         double denom = (y4 - y3) * (x2 - x1) - (x4 - x3) * (y2 - y1);
-        if (denom == 0) { // Lines are parallel
+        if (denom == 0) {
+            // Lines are parallel
             return null;
         }
 
         double ua = ((x4 - x3) * (y1 - y3) - (y4 - y3) * (x1 - x3)) / denom;
         double ub = ((x2 - x1) * (y1 - y3) - (y2 - y1) * (x1 - x3)) / denom;
-        if (ua < 0 || ua > 1 || ub < 0 || ub > 1) { // Intersection is not on line segments
+        if (ua < 0 || ua > 1 || ub < 0 || ub > 1) {
+            // Intersection is not on line segments
             return null;
         }
 
@@ -216,4 +222,58 @@ public class Tools {
         return new Point2D(x, y);
     }
 
+    // a way to cheat doing the penumbra. i made a GRADIENT! a custom one as its slightly more flexible for my uses.
+    // the gradient is then applied as an imagePattern to the polygon.
+    public static Image imageGradientToBlack (Color c, int width, int height, int steps, double deadPercent) {
+        int endSteps = (int) (steps / 4.0);
+        int deadSteps = (int) (steps * deadPercent);
+        int normalSteps = steps - endSteps - deadSteps;
+
+        double deltaR = (c.getRed()) / (normalSteps);
+        double deltaG = (c.getGreen()) / (normalSteps);
+        double deltaB = (c.getBlue()) / (normalSteps);
+
+        double centerX = Math.ceil(width/2.0);
+        double centerY = Math.ceil(height/2.0);
+
+        double currentLength;
+
+        double stepSize = Math.sqrt(Math.pow(centerX - width, 2) + Math.pow(centerY - height, 2)) / (steps * 1.1);
+        int currentStep;
+
+        WritableImage wi = new WritableImage(width, height);
+        PixelWriter pw = wi.getPixelWriter();
+
+        double red;
+        double blue;
+        double green;
+        double alpha;
+
+        for (int x = 0; x < wi.getWidth(); x++) {
+            for (int y = 0; y < wi.getHeight(); y++) {
+                currentLength = Math.sqrt(Math.pow(centerX - (x+1), 2) + Math.pow(centerY - (y+1), 2));
+                currentStep = (int) Math.floor(currentLength / stepSize);
+
+                if (currentStep > normalSteps + deadSteps) {
+                    //pw.setColor(x, y, Color.BLACK);
+                    continue;
+                }
+                if (currentStep < deadSteps) {
+                    pw.setColor(x, y, Color.TRANSPARENT);
+                }
+                else {
+                    currentStep = currentStep - deadSteps;
+
+                    red = (c.getRed() - (deltaR * currentStep));
+                    blue = (c.getBlue() - (deltaB * currentStep));
+                    green = (c.getGreen() - (deltaG * currentStep));
+                    alpha = 0.45 + ((0.55/normalSteps) * currentStep);
+
+                    pw.setColor(x, y, new Color(red, green, blue, alpha));
+                }
+
+            }
+        }
+        return wi;
+    }
 }
