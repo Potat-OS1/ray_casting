@@ -9,8 +9,8 @@ public class RadialLight extends LightSource{
 
         for (int a = 0; a < rayCount; a++) {
             rays.add(new Ray(originX, originY, (360.0/rayCount)*a, strength));
-            this.lightDropOff = Tools.imageGradientToBlack(lightColor, strength * 2, strength * 2, 120, 0);
         }
+        this.lightDropOff = Tools.imageGradientToBlack(lightColor, strength * 2, strength * 2, 120, 0);
 //        for (Ray ray : rays) {
 //            Controller.p.getChildren().add(ray.getRay());
 //        }

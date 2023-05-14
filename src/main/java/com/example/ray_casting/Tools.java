@@ -232,7 +232,6 @@ public class Tools {
         double deltaR = (c.getRed()) / (normalSteps);
         double deltaG = (c.getGreen()) / (normalSteps);
         double deltaB = (c.getBlue()) / (normalSteps);
-
         double centerX = Math.ceil(width/2.0);
         double centerY = Math.ceil(height/2.0);
 
@@ -264,10 +263,20 @@ public class Tools {
                 else {
                     currentStep = currentStep - deadSteps;
 
-                    red = (c.getRed() - (deltaR * currentStep));
-                    blue = (c.getBlue() - (deltaB * currentStep));
-                    green = (c.getGreen() - (deltaG * currentStep));
-                    alpha = 0.45 + ((0.55/normalSteps) * currentStep);
+                    red = Math.max((c.getRed() - (deltaR * currentStep)), 0);
+                    blue = Math.max((c.getBlue() - (deltaB * currentStep)), 0);
+                    green = Math.max((c.getGreen() - (deltaG * currentStep)), 0);
+                    alpha = 0.15 + ((0.85/normalSteps) * currentStep);
+
+                    if (red < 0) {
+                        red = 0;
+                    }
+                    if (blue < 0) {
+                        blue = 0;
+                    }
+                    if (green < 0) {
+                        green = 0;
+                    }
 
                     pw.setColor(x, y, new Color(red, green, blue, alpha));
                 }
