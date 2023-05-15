@@ -21,7 +21,7 @@ public class Update extends AnimationTimer {
     ArrayList<ArrayList<Point2D>> irisPointList = new ArrayList<>();
     ArrayList<Shape> lightShapes = new ArrayList<>();
     ArrayList<Image> lightImages = new ArrayList<>();
-    BoxBlur bb, bb2;
+    BoxBlur bb = new BoxBlur(10, 10, 2);
     Image shadowImage;
     double shadowOpacity = 0.7;
 
@@ -40,18 +40,11 @@ public class Update extends AnimationTimer {
             }
         }
         shadowImage = image;
-
-//        bb = new BoxBlur();
-//        bb.setIterations(3);
-//        bb2 = new BoxBlur();
-//        bb2.setIterations(10);
-//        bb2.setWidth(100);
-//        bb2.setHeight(100);
     }
 
     @Override
     public void handle(long now) {
-        if (now - lastUpdate >= 1_000_00) {
+        if (now - lastUpdate >= 22_666_666) {
             System.out.println(now - lastUpdate);
             lightPointList.clear();
             lightImages.clear();
@@ -71,6 +64,8 @@ public class Update extends AnimationTimer {
             updateLights();
             updateShadows(now);
 
+            System.out.println(now-lastUpdate);
+
             lastUpdate = now;
         }
     }
@@ -86,11 +81,14 @@ public class Update extends AnimationTimer {
                 //updateRadialShadow(light, lightPointList.get(a));
                 //lightImages.add(light.getLightDropOff());
                 //p.getChildren().add(new ImageView(light.getLightDropOff()));
-                lightImage = (WritableImage) combineImages(lightImages.get(a), lightImage, (int) light.getX() - light.strength, (int) light.getY()- light.strength, now);
+                lightImage = (WritableImage) combineImages(lightImages.get(a), lightImage, (int) light.getX() - light.strength, (int) light.getY()- light.strength);
             }
             a++;
         }
-        p.getChildren().add(new ImageView(lightImage));
+        ImageView iv = new ImageView(lightImage);
+        iv.setEffect(bb);
+        p.getChildren().add(iv);
+
         Controller.top.getChildren().add(p);
 //        WritableImage wi = new WritableImage(Controller.sceneX, Controller.sceneY);
 //        SnapshotParameters sp = new SnapshotParameters();
@@ -109,7 +107,7 @@ public class Update extends AnimationTimer {
 
     private void updateRadialShadow (LightSource light, ArrayList<Point2D> lightPoints, long now) {
         Shape lightShape = Tools.arrayListToPolygon(lightPoints, Color.WHITE);
-        combineImages(lightShape.snapshot(new SnapshotParameters(), null), lightImage,0, 0, now);
+        combineImages(lightShape.snapshot(new SnapshotParameters(), null), lightImage,0, 0);
         //combineImages(light.getLightDropOff(), lightImage, lightPixelWriter, (int) light.getX(), (int) light.getY());
     }
 
@@ -144,7 +142,7 @@ public class Update extends AnimationTimer {
     int overlayCol;
     int overlayRow;
 
-    public Image combineImages(Image overlayImage, WritableImage lightImage, int x, int y, long now) {
+    public Image combineImages(Image overlayImage, WritableImage lightImage, int x, int y) {
         int baseWidth = (int) overlayImage.getWidth();
         int baseHeight = (int) overlayImage.getHeight();
 
@@ -158,6 +156,10 @@ public class Update extends AnimationTimer {
                 overlayCol = b + x;
                 overlayRow = a + y;
 
+                if (overlayCol < 0 || overlayRow < 0 || overlayCol >= lightImage.getWidth() || overlayRow >= lightImage.getHeight()) {
+                    continue;
+                }
+
                 try {
                     if (overlayReader.getColor(b, a).getOpacity() != 0.0) {
                         alpha = Math.min(overlayReader.getColor(b, a).getOpacity(), .7);
@@ -168,8 +170,8 @@ public class Update extends AnimationTimer {
                         pw.setColor(overlayCol, overlayRow, new Color(red, green, blue, alpha));
                     }
                 }
-                catch (Exception ignored) {
-                    System.out.println("oi");
+                catch (Exception e) {
+                    System.out.println(overlayCol + "  " + overlayRow);
                 }
             }
         }
