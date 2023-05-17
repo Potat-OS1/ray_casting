@@ -44,8 +44,8 @@ public class Controller extends Application {
         RadialLight one = new RadialLight(1024, 200, 200, false, Color.rgb(0, 0, 255, 1), 200);
         Lights.add(one);
 
-        RadialLight two = new RadialLight(512, 275, 275, true, Color.rgb(0, 255, 0, 1), 100);
-        Lights.add(two);
+//        RadialLight two = new RadialLight(512, 275, 275, true, Color.rgb(0, 255, 0, 1), 100);
+//        Lights.add(two);
 
         //RadialLight three = new RadialLight(512, 275, 500, true, Color.TRANSPARENT, 100, true);
         //Lights.add(three);
