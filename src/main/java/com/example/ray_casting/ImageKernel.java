@@ -15,13 +15,13 @@ public class ImageKernel extends Kernel {
     PixelReader basePixelReader, overlayPixelReader;
     PixelWriter basePixelWriter;
 
-    ImageKernel (int width, int height, WritableImage base, PixelReader basePixelReader, PixelWriter basePixelWriter, Image overlay, PixelReader overlayPixelReader) {
+    ImageKernel (int width, int height, WritableImage base, PixelReader basePixelReader, PixelWriter basePixelWriter, Image overlay) {
         this.width = width;
         this.height = height;
         this.base = base;
         this.overlay = overlay;
         this.basePixelReader = basePixelReader;
-        this.overlayPixelReader = overlayPixelReader;
+        this.overlayPixelReader = overlay.getPixelReader();
         this.basePixelWriter = basePixelWriter;
     }
 

@@ -1,5 +1,6 @@
 package com.example.ray_casting;
 
+import com.aparapi.Kernel;
 import javafx.animation.AnimationTimer;
 import javafx.geometry.Point2D;
 import javafx.scene.SnapshotParameters;
@@ -23,6 +24,7 @@ public class Update extends AnimationTimer {
     double shadowOpacity = 0.7;
 
     WritableImage lightImage = new WritableImage(800, 800);
+    PixelReader lightPixelReader = lightImage.getPixelReader();
     PixelWriter lightPixelWriter = lightImage.getPixelWriter();
 
     @Override
@@ -78,28 +80,18 @@ public class Update extends AnimationTimer {
                 //updateRadialShadow(light, lightPointList.get(a));
                 //lightImages.add(light.getLightDropOff());
                 //p.getChildren().add(new ImageView(light.getLightDropOff()));
-                lightImage = (WritableImage) combineImages(lightImages.get(a), lightImage, (int) light.getX() - light.strength, (int) light.getY()- light.strength);
+                //lightImage = (WritableImage) combineImages(lightImages.get(a), lightImage, (int) light.getX() - light.strength, (int) light.getY()- light.strength);
+                ImageKernel ik = new ImageKernel(800, 800, lightImage, lightPixelReader, lightPixelWriter, light.getLightDropOff());
+                ik.run();
             }
             a++;
         }
+
         ImageView iv = new ImageView(lightImage);
         iv.setEffect(bb);
         p.getChildren().add(iv);
 
         Controller.top.getChildren().add(p);
-//        WritableImage wi = new WritableImage(Controller.sceneX, Controller.sceneY);
-//        SnapshotParameters sp = new SnapshotParameters();
-//        sp.setFill(Color.TRANSPARENT);
-//
-//        for (int b = 0; b < lightImages.size(); b++) {
-//            lightShapes.get(b).setFill(new ImagePattern(lightImages.get(b), lightShapes.get(b).getBoundsInParent().getMinX(),lightShapes.get(b).getBoundsInParent().getMinY(),lightShapes.get(b).getBoundsInParent().getWidth(),lightShapes.get(b).getBoundsInParent().getHeight(),false));
-//            wi = lightShapes.get(b).snapshot(sp, wi);
-//        }
-//        ImageView iv = new ImageView(wi);
-//        p.getChildren().add(iv);
-//        Controller.top.getChildren().addAll(lightShapes);
-
-
     }
 
     private void updateRadialShadow (LightSource light, ArrayList<Point2D> lightPoints, long now) {
