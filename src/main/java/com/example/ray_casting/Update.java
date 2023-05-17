@@ -16,16 +16,11 @@ public class Update extends AnimationTimer {
     double x1, x2, y1, y2;
     double[] points = new double[2];
     ArrayList<ArrayList<Point2D>> lightPointList = new ArrayList<>();
-    ArrayList<ArrayList<Point2D>> irisPointList = new ArrayList<>();
     ArrayList<Shape> lightShapes = new ArrayList<>();
     ArrayList<Image> lightImages = new ArrayList<>();
     BoxBlur bb = new BoxBlur(10, 10, 2);
     Image shadowImage;
     double shadowOpacity = 0.7;
-    double[][][] pixelMatrix;
-    double[] temp;
-    int a, r, g, b;
-
 
     WritableImage lightImage = new WritableImage(800, 800);
     PixelWriter lightPixelWriter = lightImage.getPixelWriter();
@@ -33,8 +28,6 @@ public class Update extends AnimationTimer {
     @Override
     public void start() {
         super.start();
-        pixelMatrix = new double[800][800][4];
-
         WritableImage image = new WritableImage(Controller.sceneX, Controller.sceneY);
 
         PixelWriter pw = image.getPixelWriter();
@@ -48,17 +41,24 @@ public class Update extends AnimationTimer {
 
     @Override
     public void handle(long now) {
-        if (now - lastUpdate >= 32_666_666) {
-            pixelMatrix = new double[800][800][4];
+        if (now - lastUpdate >= 16_666_666) {
+            System.out.println(now - lastUpdate);
             lightPointList.clear();
             lightImages.clear();
 
+            PixelWriter pw = lightImage.getPixelWriter();
+            for (int x = 0; x < lightImage.getWidth(); x++) {
+                for (int y = 0; y < lightImage.getHeight(); y++) {
+                    pw.setColor(x, y, new Color(0.0, 0.0, 0.0, .7));
+                }
+            }
+
+
+//            irisPointList.clear();
             Controller.top.getChildren().clear();
             lightShapes.clear();
-
+//
             updateLights();
-
-            storeValuesInMatrix(shadowImage, 0, 0);
             updateShadows();
 
             System.out.println(now-lastUpdate);
@@ -67,80 +67,39 @@ public class Update extends AnimationTimer {
         }
     }
 
-    private void storeValuesInMatrix (Image givenImage, int x, int y) {
-        int baseWidth = (int) givenImage.getWidth();
-        int baseHeight = (int) givenImage.getHeight();
-
-        PixelReader overlayReader = givenImage.getPixelReader();
-
-        Color temp;
-
-        for (int a = 0; a < baseHeight; a++) {
-            for (int b = 0; b < baseWidth; b++) {
-                overlayCol = b + x;
-                overlayRow = a + y;
-
-                if (overlayCol < 0 || overlayRow < 0 || overlayCol >= lightImage.getWidth() || overlayRow >= lightImage.getHeight()) {
-                    continue;
-                }
-
-                try {
-                    if (overlayReader.getColor(b, a).getOpacity() != 0.0) {
-                        temp = overlayReader.getColor(b, a);
-                        pixelMatrix[overlayCol][overlayRow][0] = Math.max(pixelMatrix[overlayCol][overlayRow][0], temp.getRed());
-                        pixelMatrix[overlayCol][overlayRow][1] = Math.max(pixelMatrix[overlayCol][overlayRow][1], temp.getGreen());
-                        pixelMatrix[overlayCol][overlayRow][2] = Math.max(pixelMatrix[overlayCol][overlayRow][2], temp.getBlue());
-                        pixelMatrix[overlayCol][overlayRow][3] = Math.min(.7, temp.getOpacity());
-                    }
-                }
-                catch (Exception e) {
-                    System.out.println(e.getCause());
-                }
-            }
-        }
-    }
-
-    private void matrixValuesToImage () {
-        for (int x = 0; x < pixelMatrix.length; x++) {
-            for (int y = 0; y < pixelMatrix[x].length; y++) {
-                try {
-                    temp = pixelMatrix[x][y];
-                    lightPixelWriter.setColor(x, y, new Color(temp[0], temp[1], temp[2], temp[3]));
-                }
-                catch (Exception e) {
-                    System.out.println(e.getCause());
-                }
-
-                //tried both methods here to similar results
-//                a = ((int)(temp[3] * 255) & 0xFF) << 24;
-//                r = ((int)(temp[0] * 255) & 0xFF) << 16;
-//                g = ((int)(temp[1] * 255) & 0xFF) << 8;
-//                b = (int)(temp[2] * 255);
-//                lightPixelWriter.setArgb(x, y, a | r | g | b);
-
-            }
-        }
-    }
-
     private void updateShadows () {
         int a = 0;
         Pane p = new Pane();
 
         for (LightSource light : Controller.Lights) {
-//            lightImages.add(light.getLightDropOff());
-//            lightShapes.add(Tools.arrayListToPolygon(lightPointList.get(a), Color.WHITE));
+            lightImages.add(light.getLightDropOff());
+            lightShapes.add(Tools.arrayListToPolygon(lightPointList.get(a), Color.WHITE));
             if (light instanceof RadialLight) {
-                //lightImage = (WritableImage) combineImages(lightImages.get(a), lightImage, (int) light.getX() - light.strength, (int) light.getY()- light.strength);
-                storeValuesInMatrix(light.getLightDropOff(), (int) light.getX() - light.strength, (int) light.getY()- light.strength);
+                //updateRadialShadow(light, lightPointList.get(a));
+                //lightImages.add(light.getLightDropOff());
+                //p.getChildren().add(new ImageView(light.getLightDropOff()));
+                lightImage = (WritableImage) combineImages(lightImages.get(a), lightImage, (int) light.getX() - light.strength, (int) light.getY()- light.strength);
             }
             a++;
         }
-        matrixValuesToImage();
-
         ImageView iv = new ImageView(lightImage);
+        iv.setEffect(bb);
         p.getChildren().add(iv);
 
         Controller.top.getChildren().add(p);
+//        WritableImage wi = new WritableImage(Controller.sceneX, Controller.sceneY);
+//        SnapshotParameters sp = new SnapshotParameters();
+//        sp.setFill(Color.TRANSPARENT);
+//
+//        for (int b = 0; b < lightImages.size(); b++) {
+//            lightShapes.get(b).setFill(new ImagePattern(lightImages.get(b), lightShapes.get(b).getBoundsInParent().getMinX(),lightShapes.get(b).getBoundsInParent().getMinY(),lightShapes.get(b).getBoundsInParent().getWidth(),lightShapes.get(b).getBoundsInParent().getHeight(),false));
+//            wi = lightShapes.get(b).snapshot(sp, wi);
+//        }
+//        ImageView iv = new ImageView(wi);
+//        p.getChildren().add(iv);
+//        Controller.top.getChildren().addAll(lightShapes);
+
+
     }
 
     private void updateRadialShadow (LightSource light, ArrayList<Point2D> lightPoints, long now) {
@@ -149,7 +108,7 @@ public class Update extends AnimationTimer {
         //combineImages(light.getLightDropOff(), lightImage, lightPixelWriter, (int) light.getX(), (int) light.getY());
     }
 
-    private void imageSubtraction (WritableImage img, Shape shape, int x, int y) {
+    public void imageSubtraction (WritableImage img, Shape shape, int x, int y) {
         SnapshotParameters sp = new SnapshotParameters();
         sp.setFill(Color.TRANSPARENT);
         WritableImage shapeImage = shape.snapshot(sp, null);
@@ -184,26 +143,27 @@ public class Update extends AnimationTimer {
         int baseWidth = (int) overlayImage.getWidth();
         int baseHeight = (int) overlayImage.getHeight();
 
+        final int maxA = Math.min((int) overlayImage.getHeight(), (int) lightImage.getHeight() - y);
+        final int maxB = Math.min((int) overlayImage.getWidth(), (int) lightImage.getWidth() - x);
         PixelReader baseReader = lightImage.getPixelReader();
         PixelReader overlayReader = overlayImage.getPixelReader();
         PixelWriter pw = lightImage.getPixelWriter();
         // Iterate over each pixel of the base image
-        for (int a = 0; a < baseHeight; a++) {
-            for (int b = 0; b < baseWidth; b++) {
+        for (int a = 0; a < maxA; a++) {
+            overlayRow = a + y;
+            if (overlayRow < 0 || overlayRow >= lightImage.getHeight()) {
+                continue;
+            }
+            for (int b = 0; b < maxB; b++) {
                 // Calculate the corresponding position in the overlay image
                 overlayCol = b + x;
-                overlayRow = a + y;
-
-                if (overlayCol < 0 || overlayRow < 0 || overlayCol >= lightImage.getWidth() || overlayRow >= lightImage.getHeight()) {
+                if (overlayCol < 0 || overlayCol >= lightImage.getWidth()) {
                     continue;
                 }
 
                 try {
                     if (overlayReader.getColor(b, a).getOpacity() != 0.0) {
-                        alpha = Math.min(overlayReader.getColor(b, a).getOpacity(), .7);
-                        red = Math.max(overlayReader.getColor(b, a).getRed(), baseReader.getColor(overlayCol, overlayRow).getRed());
-                        blue = Math.max(overlayReader.getColor(b, a).getBlue(), baseReader.getColor(overlayCol, overlayRow).getBlue());
-                        green = Math.max(overlayReader.getColor(b, a).getGreen(), baseReader.getColor(overlayCol, overlayRow).getGreen());
+
 
                         pw.setColor(overlayCol, overlayRow, new Color(red, green, blue, alpha));
                     }

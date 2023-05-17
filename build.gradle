@@ -24,6 +24,7 @@ application {
 dependencies {
     implementation "ch.qos.logback:logback-classic:$logbackVersion"
     implementation "ch.qos.logback:logback-core:$logbackVersion"
+    implementation "com.aparapi:aparapi:3.0.0"
 }
 
 jlink {
